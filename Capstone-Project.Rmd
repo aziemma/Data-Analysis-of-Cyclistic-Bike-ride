@@ -1,0 +1,503 @@
+---
+title: "Capstone Project"
+author: "Emmanuel Azi-love"
+date: '2022-05-27'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction to my Capstone Project
+
+This Capstone project is the final part of my Google Data Analytics Certification. This project showcases my analytical skills and my thought process through out the project.This case study is based on a fictional bike-share company called Cyclistic.
+
+### About the Company
+
+In 2016, Cyclistic launched a successful bike-share offering. Since then, the program has grown to a fleet of 5,824 bicycles that are geotracked and locked into a network of 692 stations across Chicago. The bikes can be unlocked from one station and returned to any other station in the system anytime.
+
+-   It compromises of two types of users, **Casual** and **members**
+-   Cyclistic users are more likely to ride for leisure, but about 30% use them to commute to work each day.
+
+### Scenario
+
+I am a junior data analyst working in the marketing analyst team at Cyclistic, a bike-share company in Chicago. The director of marketing believes the company's future success depends on maximizing the number of annual memberships. Therefore, your team wants to understand how casual riders and annual members use Cyclistic bikes differently. From these insights, your team will design a new marketing strategy to convert casual riders into annual members. But first, Cyclistic executives must approve your recommendations, so they must be backed up with compelling data insights and professional data visualizations.
+
+-   This casestudy would follow the six stages of the Google Data Analytics; Ask,Prepare,Process,Analyze,Share,Act.
+
+## Step 1: Ask
+
+### 1.1 Three questions will guide the future marketing program:
+
+-   How do annual members and casual riders use Cyclistic bikes differently?
+-   Why would casual riders buy Cyclistic annual memberships?
+-   How can Cyclistic use digital media to influence casual riders to become members?
+
+### 1.2 Consider key stakeholders
+
+-   The director of marketing : responsible for the development of campaigns and initiatives to promote the bike-share program. These may include email, social media, and other channels.
+-   Cyclistic executive team : The notoriously detail-oriented executive team will decide whether to approve the recommended marketing program.
+
+## Step 2: Prepare the Data
+
+This step includes identifying and collecting the data from its location and determining its integrity, credibility and accessibility.
+
+### 2.1 Data Location
+
+-   Since Cyclistic is a fictional company, real-world data of Divvy, a bike-share company in Chicago has been used.
+-   Data Source link: [Divvy Public Data](https://divvy-tripdata.s3.amazonaws.com/index.html)
+
+### 2.2 Data Organization
+
+-   Data in this project includes the previous 12 month historical trip from **May,2022 to June 2021** with one .csv file for each month -Each .csv file is organized in rows and columns structure with 13 Columns and variable rows
+
+### 2.3 Data Credibility
+
+-   Data is a from a standard source, is credible, and free from bias
+-   Data obeys the the ROCCC standard for any data set; **Reliable, Original,Comprehensive, Current** and **Cited**
+
+### 2.4 Licensing, Privacy, Security, and Accessibility
+
+-   The data has been made available by Motivate International Inc. under this [license](https://ride.divvybikes.com/data-license-agreement)
+-   The data does not contain any private information of the riders, thereby maintaining their privacy.
+-   The data stands secure in an AWS web portal.
+-   The data is open-source and accessible to all
+
+### 2.5 Loading Required R Packages
+
+```{r}
+library(tidyverse) #data analysis
+library(lubridate) #date and time manipulation
+library(ggplot2) #data visualization
+library(janitor) #data cleaning
+library(skimr) #data inspection
+library(dplyr) #data manipulation
+```
+
+### 2.6 Getting working direcory
+
+#getwd()
+
+### 2.7 Collecting Data
+
+```{r}
+may_2022 <- read.csv("202204-divvy-tripdata.csv")
+apr_2022 <- read.csv("202203-divvy-tripdata.csv")
+march_2022 <- read.csv("202202-divvy-tripdata.csv")
+feb_2022 <- read.csv("202201-divvy-tripdata.csv")
+jan_2022 <- read.csv("202112-divvy-tripdata.csv")
+dec_2021 <- read.csv("202111-divvy-tripdata.csv")
+nov_2021 <- read.csv("202110-divvy-tripdata.csv")
+oct_2021 <- read.csv("202109-divvy-tripdata.csv")
+sep_2021 <- read.csv("202108-divvy-tripdata.csv")
+aug_2021 <- read.csv("202107-divvy-tripdata.csv")
+july_2021 <- read.csv("202106-divvy-tripdata.csv")
+june_2021 <- read.csv("202105-divvy-tripdata.csv")
+```
+
+### 2.8 Checking for data frame consistency
+
+```{r}
+#I want to check if all columns in the 12 datasets match, this is part of EDA; Exploratory Data Analysis
+compare_df_cols_same(may_2022,apr_2022,march_2022,feb_2022,jan_2022,dec_2021,nov_2021,oct_2021,sep_2021,aug_2021,july_2021,june_2021)
+```
+
+### 2.9 Joining the the datasets together
+
+```{r}
+Annual_trip <- bind_rows(may_2022,apr_2022,march_2022,feb_2022,jan_2022,dec_2021,nov_2021,oct_2021,sep_2021,aug_2021,july_2021,june_2021)
+```
+
+## 2.10 Inspect the new dataset
+
+```{r}
+skim_without_charts(Annual_trip) #checking the total dataset structure
+```
+
+```{r}
+head(Annual_trip) #checking the first six rows of the data set
+```
+
+```{r}
+glimpse(Annual_trip) #checking the summary of the rows
+```
+
+```{r}
+colnames(Annual_trip) #checking the column names of the data set
+```
+
+```{r}
+str(Annual_trip) #checking the properties of the columns
+```
+
+### 2.11 Observations:
+
+- Total Rows:	5757551, Total Columns:13
+- Rows represents the total number of rides
+- No duplicates
+- Three different types of rideable_type; Classic, electric and docked bike
+- Two distinct users; Casual and Member
+
+### 2.12 Data Issues
+
+- Some of the columns have missing values; end_lat and end_lng
+- The column started_at and ended_at have dates and time but are expressed as a 'chr' property, that would be worked on
+- No difference in time a ride started to when it ended, a column showing that would be created.
+- To properly analyze the data we would need to aggregate it, showing days hours,days,month of ride.
+
+### 2.13 Data that would address business task
+
+- the type of bike
+- trip length
+- weekday of trip
+- time of trip
+- trip start station
+- trip end station
+- monthly trends
+- weekly trends
+
+## Step3: Process the Data
+This involves the Data Wrangling,to aid further analysis
+
+- The Annual_trip data set has 5.7million Rows, therefore Rstudio would be employed for the cleaning and analysis of this data set. 
+- Tableau would be used for the dashboard creation.
+
+### 3.1 Data Manipulation
+
+####  Configuration of the started_at and ended_at column
+```{r}
+Annual_trip$started_at <- as.POSIXct(Annual_trip$started_at)
+Annual_trip$ended_at <- as.POSIXct(Annual_trip$ended_at)
+```
+
+Confirmation:
+```{r}
+str(Annual_trip)
+```
+
+####  Renaming Column
+```{r}
+Annual_trip <- rename(Annual_trip, "user"="member_casual")
+```
+
+####  Generating Ride length Column
+```{r}
+Annual_trip$ride_length <- difftime(Annual_trip$ended_at,Annual_trip$started_at)
+```
+
+####  Generating column for date, day,week and month of ride
+```{r}
+Annual_trip$date <- as.Date(Annual_trip$started_at)  #generating date of ride column
+Annual_trip$day <- format(as.Date(Annual_trip$date), "%d")  #generating day column
+Annual_trip$weekday <- format(as.Date(Annual_trip$date),"%a")  #generating week day column
+Annual_trip$month <- format(as.Date(Annual_trip$date), "%b")  #generating month column
+Annual_trip$year <- format(as.Date(Annual_trip$date), "%Y")  #generating year column
+```
+
+#### Adding hour and time of day columns
+```{r}
+Annual_trip$hour <- lubridate::hour(Annual_trip$started_at)  #generating hour each trip started
+Annual_trip <- Annual_trip %>%
+  mutate(time_of_day=case_when(hour>=5 & hour<12 ~ "Morning",hour>=12 & hour<16 ~ "Afternoon",hour>=16 & hour<21 ~ "Evening",hour<5 | hour>=21 ~ "Night"))
+```
+
+### 3.2 Inspect the dataset
+```{r}
+skim_without_charts(Annual_trip) #generating summary of the process
+```
+#### 3.2.1 Observations
+
+- The minimum value of the ride_length is negative, which is impossible
+- The maximum value of the ride_length is 3356649 secs (932.4 hrs)
+- Ride_length is in sec, we need to convert it to numeric to make calculations 
+
+### 3.3 Converting ride_length to numeric
+```{r}
+Annual_trip$ride_length <- as.numeric(Annual_trip$ride_length)
+```
+
+Check if it is numeric
+```{r}
+is.numeric(Annual_trip$ride_length)
+```
+
+### 3.4 Data Cleaning
+- Ride with negative values are considered invalid, since rides are counted with respect to time.
+- Company website stated that rides less than 60 seconds are invalid as it was potentially customers docking their bike or a false start [link to website](https://ride.divvybikes.com/system-data)
+- Rides greater than 24 hrs are also considered as outliers, because they are grossly inflated.
+- Rides with empty end_lat, and end_lng are considered invalid because the rides were not ended in a proper way.
+
+#### 3.4.1 Removing Ride length less than 60 sec and greater than 24hrs
+```{r}
+Annual_trip_2 <- Annual_trip %>%
+  filter(!(ride_length<60)) %>%
+  filter(!(ride_length>86400)) #24hrs = 86400 secs
+```
+
+#### 3.4.2 Checking Minimum and Maximum ride
+```{r}
+min(Annual_trip_2$ride_length)
+```
+
+```{r}
+max(Annual_trip_2$ride_length)
+```
+
+#### 3.4.3 Removing empty end_lat and end_lng
+```{r}
+Annual_trip_3 <- Annual_trip_2 %>%
+  filter(!(is.na(end_lng)) | !(is.na(end_lat)))
+```
+
+#### 3.4.4 Inspecting the dataset
+```{r}
+skim_without_charts(Annual_trip_3)
+```
+
+### 3.5 Getting summary of the ride length with fitered NA for start_station_name and end_station_name
+```{r}
+Annual_trip_3 <- Annual_trip_3 %>%
+  filter(!(is.na(start_station_name)) | !(is.na(end_station_name))) 
+summary(Annual_trip_3$ride_length)
+```
+
+### 3.6 Data Check
+
+- No duplicates
+- All outliers and grossly inflated ride_lengths have been removed.
+- The data is not outdated, it is current, hence having the recent 12 months of data set.
+- All the 12 data sets have been combined together to form a  bigger singular set.
+- The Singular dataset is Reliable, Original, Comprehensive, Current and Cited.
+- Data is set to answer the business questions.
+
+### 3.7 Data Documentation
+This R markdown gives a detailed documentation of the overall process using code chunks for it's analysis
+
+## Step 4: Analysis and Visualization
+
+Summary of the Ride length
+```{r}
+summary(Annual_trip_3$ride_length)
+```
+ 
+Observations
+
+- Minimum ride_length is 60 seconds for all rides
+- Average ride_length is 1136 seconds (18.93 mins) for all rides
+_ Maximum ride_length is 86391 seconds (23.9hrs) for all rides
+
+### 4.1 Brief rundown of all the process
+```{r}
+summary(Annual_trip_3)
+```
+
+```{r}
+glimpse(Annual_trip_3)
+```
+
+### 4.2 Analyzing users with respect to ride_length
+```{r}
+Annual_trip_3 %>%
+  group_by(user) %>%
+  summarise(average_ride_length=mean(ride_length),median_ride_length=median(ride_length),min_ride_length=min(ride_length),max_ride_length=max(ride_length))
+```
+
+Visualize the Average ride_length
+```{r}
+Annual_trip_3 %>%
+  group_by(user) %>%
+  summarise(average_ride_length=mean(ride_length)) %>%
+  ggplot() + geom_bar(mapping=aes(x=user,y=average_ride_length,fill=user),stat='identity',width=0.3) + labs(title="Ride length average for each user",x="USER TYPE",y="AVERAGE RIDE LENGTH") + coord_flip() + scale_fill_manual(values=c("Orange","Blue"))
+```
+
+#### 4.2.1 Observations
+- The average ride length for casual is 1581sec(26.35min) and that for member is 786sec(13.1min)
+- Average ride length for casual is twice that of members
+
+### 4.3 Analyzing the total number of rides with respect to user
+```{r}
+Annual_trip_3 %>%
+  group_by(user)%>%
+  summarise(number_of_rides=n())
+```
+
+Visualizing the total rides with respect to bike type
+```{r}
+Annual_trip_3 %>%
+  group_by(user,rideable_type)%>%
+  summarise(number_of_ride=n())%>%
+  ggplot() + geom_bar(mapping=aes(x=user,y=number_of_ride,fill=rideable_type),stat='identity',width=0.4) + labs(title="Total No. of ride with respect to bike type",x="USER TYPE",y="TOTAL NO OF RIDES") + scale_fill_brewer(palette="Dark2")
+```
+
+#### 4.3.1 Observations
+
+- Classic bik is the most used bike type
+- docked bike is only used by casual members
+- Total number of Member rides is larger than Caual ride
+
+### 4.4 Analyzing Monthly rides with respect to each user
+```{r}
+Annual_trip_3 <- Annual_trip_3%>%
+  mutate(month=factor(month,levels=c("Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May")))
+
+Annual_trip_3%>%
+  group_by(user,month)%>%
+  summarise(number_of_ride=n())%>%
+  arrange(user)
+```
+
+Visualizing Monthly Rides
+```{r}
+Annual_trip_3 %>%
+  group_by(user,month)%>%
+  summarise(number_of_ride=n())%>%
+  ggplot(aes(x=month,y=number_of_ride,group=user,color=user)) + geom_line(size=1.0) + geom_point(size=2.0) + labs(title="Monthly rides for Users",x="Month",y="Number of Rides") + scale_color_manual(values=c("Green","Blue"))
+```
+
+#### 4.4.1 Observations
+
+- Casual rides are significantly higher from June to August but are relatively the lowest from Dec to Feb.
+- Member Rides maintain a significant balance from June to Oct but decreases rapidly to February, although not as low as Casual rides.
+
+### 4.5 Analyzing weekly rides with respect to each user
+```{r}
+Annual_trip_3 <- Annual_trip_3%>%
+  mutate(weekday=factor(weekday, levels=c("Mon","Tue","Wed","Thu","Fri","Sat","Sun")))
+
+Annual_trip_3%>%
+  group_by(user,weekday)%>%
+  summarise(number_of_ride=n())%>%
+  arrange(user)
+```
+
+Visualizing Weekly Total Rides with respect to each user
+```{r}
+Annual_trip_3%>%
+  group_by(user,weekday)%>%
+  summarise(number_of_ride=n())%>%
+  ggplot() + geom_bar(mapping=aes(x=weekday,y=number_of_ride,fill=user),stat='identity',width=0.2) + labs(title="Total Weekly Ride for Users",x="Weekday",y="Number of Rides") + scale_fill_manual(values=c("Orange","Blue"))
+```
+
+#### 4.5.1 Observations
+
+- Casual Rides are higher than member rides during weekends.
+- Member rides are higher during weekdays, which means members use this as a medium to commute to work.
+
+### 4.6 Analyzing Average weekly rides per user
+```{r}
+Annual_trip_3 %>%
+  group_by(user,weekday)%>%
+  summarise(Average_ride=mean(ride_length))%>%
+  arrange(user)
+```
+
+Visualizing the Average Weekly Ride
+```{r}
+Annual_trip_3%>%
+  group_by(user,weekday)%>%
+  summarise(Average_ride=mean(ride_length))%>%
+  ggplot() + geom_bar(mapping=aes(x=weekday,y=Average_ride,fill=user),stat='identity',width=0.2) + labs(title="Average Weekly Ride for Users",x="Weekday",y="Average Rides") + scale_fill_brewer(palette="Set2")
+```
+
+#### 4.6.2 Observation
+
+- Average casual ride is relatively higher on weekends.
+- Average ride for members is relatively constant during weekdays.
+
+### 4.7 Analyzing time of ride with respect to each user
+```{r}
+Annual_trip_3 <- Annual_trip_3%>%
+  mutate(time_of_day=factor(time_of_day,levels=c("Morning","Afternoon","Evening","Night")))
+
+Annual_trip_3%>%
+  group_by(user,time_of_day)%>%
+  summarise(number_of_ride=n())%>%
+  arrange(user)
+```
+
+Visualizing the time of day ride with respect to user
+```{r}
+Annual_trip_3%>%
+  group_by(user,time_of_day)%>%
+  summarise(number_of_ride=n())%>%
+  ggplot(aes(x=time_of_day,y=number_of_ride,group=user,color=user))+geom_line(size=1.1)+geom_point(size=2.2)+labs(title="Time of Day Ride took place",x="Time Period",y="Number of Ride",caption="Morning:5AM-12PM, Afternoon:12PM-4PM,Evening:4PM-9PM,Night:9PM-5AM") + scale_color_manual(values=c("Orange","Blue"))
+```
+
+#### 4.7.1 Observations
+
+- Afternoon; 12PM-4PM is the most active time for both casual and member users
+- Member user are significantly higher than Casual rider during the active time
+
+### 4.8 Analyzing top three Ride Start Stations for Member Users
+```{r}
+Annual_trip_3%>%
+  filter(!(is.na(start_station_name)))%>%   #filter out missing 
+  filter(user=="member")%>%
+  group_by(start_station_name)%>%
+  summarise(number_of_ride=n())%>%
+  arrange(-number_of_ride)%>%
+  top_n(4)
+```
+
+### 4.9 Analyzing top three Ride Start Stations for Casual Users
+```{r}
+Annual_trip_3%>%
+  filter(!(is.na(start_station_name)))%>%  #filter out missing
+  filter(user=="casual")%>%
+  group_by(start_station_name)%>%
+  summarise(number_of_ride=n())%>%
+  arrange(-number_of_ride)%>%
+  top_n(4)
+```
+
+### 4.10 Analyzing top three End Ride Stations for Member Users
+```{r}
+Annual_trip_3%>%
+  filter(!(is.na(end_station_name)))%>%  #filter out missing
+  filter(user=="member")%>%
+  group_by(end_station_name)%>%
+  summarise(number_of_ride=n())%>%
+  arrange(-number_of_ride)%>%
+  top_n(4)
+```
+
+### 4.11 Analyzing top three End Ride stations for Casual Users
+```{r}
+Annual_trip_3%>%
+  filter(!(is.na(end_station_name)))%>%
+  filter(user=="casual")%>%
+  group_by(end_station_name)%>%
+  summarise(number_of_ride=n())%>%
+  arrange(-number_of_ride)%>%
+  top_n(4)
+```
+
+## Step5: Exportation of Data 
+
+### 5.1 Creating a csv file to visualize with
+```{r}
+write.csv(Annual_trip_3,file = "Annual_trip_3.csv")
+```
+
+## Step6: Act
+This involves a conclusive statement from the Analysis done to aid Marketing startegy
+
+### 6.1 Summation of Analysis
+
+- The Average ride length for casual is 26 mins while that of member is half of that 13 mins
+- Casual members are more active on weekends while members are more active on weekdays
+- Casual Members are more active from **June to August** with its highest in **July** but are very low from **December to February**
+
+### 6.2 Recommendation from My Analysis
+
+- For successful marketing campaign, promotion should be done from **June, July and August** for casual members 
+- Timing is also a factor; since **Afternoon 12PM to 5PM** is the most active time for casual riders, this would be the perfect time to push marketing campaign.
+- Location also matters; Casual Riders have the same top locations for both start and end locations; it would be very effective to target these top locations for marketing.
+
+## Conclusion
+This wraps up my study on the Capstone Project on my Google Data Analytics Certification, helped in exploring the wonderful tools and packages that comes with R for effective Data Analysis.
+  
+
+
+
